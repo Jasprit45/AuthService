@@ -14,7 +14,7 @@ class UserService {
                 return user;
             } catch (error) {
                 console.log("Something went wrong in user-service layer");
-                throw(error);
+                throw error;
             }
         }
         
@@ -25,18 +25,35 @@ class UserService {
         } catch (error) {
             console.log("Something went wrong in token creation(service layer)");
             // console.log(error);
-            throw(error);
+            throw error;
         }
     }
         
     verifyToken(token) {
         try {
-            const result = jwt.verify(token,JWT_KEY);
-            return result;
+            console.log(JWT_KEY);
+            const response = jwt.verify(token, JWT_KEY);
+            return response;
         } catch (error) {
             console.log("Something went wrong in token verification(service layer)");
             // console.log(error);
-            throw(error);
+            throw error;
+        }
+    }
+
+    async isAuthenticated(token) {
+        try {
+            const response = this.verifyToken(token);
+            if(!response) throw {error:"invalid token"};
+
+            const user = await this.userRepository.getById(response.id);
+            if(!user) throw {error:"No user with the corresponding token"};
+
+            return user.id;
+            
+        } catch (error) {
+            console.log("Something went wrong in isAuthenticated verification(service layer)");
+            throw error ;
         }
     }
 
@@ -58,7 +75,7 @@ class UserService {
         } catch (error) {
             console.log("Something went wrong in sign in process(service layer)");
             // console.log(error);
-            throw(error);
+            throw error ;
         }
     }
 
@@ -67,7 +84,7 @@ class UserService {
             return bcrypt.compareSync(userInputplainPassword,encryptedPassword);
         } catch (error) {
             console.log("Something went wrong in password check(service layer)");
-            throw(error);
+            throw error ;
         }
     }
 }
