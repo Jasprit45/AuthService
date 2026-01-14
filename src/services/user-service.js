@@ -40,6 +40,28 @@ class UserService {
         }
     }
 
+    async signIn(email, plainPassword) {
+        try {
+            //get the user data by id
+            const user = await this.userRepository.getByEmail(email); 
+
+            //check the password and verify the user
+            const passwordMatch = this.checkPassword(plainPassword,user.password);
+            if(!passwordMatch) {
+                console.log("password did not match");
+                throw {error: "wrong password"};
+            }
+
+            //create a token for user
+            const response = this.createToken({email:user.email, id:user.id});
+            return response;
+        } catch (error) {
+            console.log("Something went wrong in sign in process(service layer)");
+            // console.log(error);
+            throw(error);
+        }
+    }
+
     checkPassword(userInputplainPassword , encryptedPassword) {
         try {
             return bcrypt.compareSync(userInputplainPassword,encryptedPassword);
