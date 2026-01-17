@@ -83,6 +83,9 @@ class UserService {
             const response = this.createToken({email:user.email, id:user.id});
             return response;
         } catch (error) {
+            if(error.name =='AttributeNotFound') {
+                throw error;
+            }
             console.log("Something went wrong in sign in process(service layer)");
             // console.log(error);
             throw error ;
